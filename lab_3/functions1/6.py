@@ -1,4 +1,4 @@
-string = str(input())
+string = input()
 
 def reverse(string):
     s = ""
