@@ -1,10 +1,15 @@
 import pygame
+import os
 pygame.init()
 
-w, h = 300, 600
+w, h = 300, 300
 screen = pygame.display.set_mode((w,h))
 
-songs = ['Abyss.mp3', 'OverThink.mp3', 'S-Class.mp3', 'SNAP.mp3', 'Take_Two.mp3', 'Tattoo.mp3', 'Te_Felicito.mp3']
+
+songs = []
+for f in os.listdir(os.getcwd()):
+    if os.path.isfile(os.path.join(os.getcwd(), f)) and f.endswith(".mp3"):
+        songs.append(f)
 song = 0
 pygame.mixer.music.load(songs[song])
 pygame.mixer.music.play()
@@ -38,4 +43,10 @@ while True:
                 song = (song - 1) % len(songs)
                 pygame.mixer.music.load(songs[song])
                 pygame.mixer.music.play()
+
+    f = pygame.font.Font(None, 36)
+    text = f.render(songs[song], 1, (255, 255, 255))
+    screen.fill((0,0,0))
+    screen.blit(text, (30, 100))
+    pygame.display.update()
                 
