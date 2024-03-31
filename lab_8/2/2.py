@@ -145,10 +145,3 @@ while not done:
 
     pygame.display.flip()
     clock.tick(FPS)
-
-
-# 1) Instead of developing Snake upgrade Arkanoid;
-# 2) Create unbreakable bricks;
-# 3) Increase the speed of a ball with time;
-# 4) Shrink the paddle with time;
-# 5) Create bonus bricks, that give some perks when you destroy them.
