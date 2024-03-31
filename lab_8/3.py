@@ -24,6 +24,12 @@ def main():
             if event.type == pygame.QUIT:
                 return
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_w and ctrl_held:
+                    return
+                if event.key == pygame.K_F4 and alt_held:
+                    return
+                if event.key == pygame.K_ESCAPE:
+                    return
             
                 # determine if a letter key was pressed
                 if event.key == pygame.K_r:
@@ -32,23 +38,12 @@ def main():
                     mode = 'green'
                 elif event.key == pygame.K_b:
                     mode = 'blue'
-                elif event.key == pygame.K_p:
-                    mode = 'briz'
-                elif event.key == pygame.K_e:
-                    mode = 'erase'
-                elif event.key == pygame.K_c:
-                    mode = 'circle'
-                elif event.key == pygame.K_:
-                    mode = 'rectangle'
             
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1: # left click grows radius
                     radius = min(200, radius + 1)
-                    if event.key == pygame.K_1:
-                        pygame.draw.rect()
                 elif event.button == 3: # right click shrinks radius
                     radius = max(1, radius - 1)
-
             
             if event.type == pygame.MOUSEMOTION:
                 # if mouse moved, add point to list
@@ -59,30 +54,33 @@ def main():
         screen.fill((0, 0, 0))
         
         # draw all points
-        if len(points) > 1:
-            functions(screen, points, mode, radius)
+        i = 0
+        while i < len(points) - 1:
+            drawLineBetween(screen, i, points[i], points[i + 1], radius, mode)
+            i += 1
         
         pygame.display.flip()
         
         clock.tick(60)
 
-def functions(screen, points, mode, radius):
-    color = getColor(mode)
+def drawLineBetween(screen, index, start, end, width, color_mode):
     
-    if mode == 'blue' or mode == 'red' or mode == 'green' or mode == 'briz':
-        for i in range(len(points) - 1):
-            pygame.draw.line(screen, color, points[i], points[i + 1], radius)
-
-def getColor(mode):
-    if mode == 'blue':
-        return (0, 0, 255)
-    elif mode == 'red':
-        return (255, 0, 0)
-    elif mode == 'green':
-        return (0, 255, 0)
-    elif mode == 'briz':
-        return (100, 255, 255)
-    elif mode == 'erase':
-        return (0, 0, 0)
+    if color_mode == 'blue':
+        color = (0, 0, 255)
+    elif color_mode == 'red':
+        color = (255, 0, 0)
+    elif color_mode == 'green':
+        color = (0, 255, 0)
+    
+    dx = start[0] - end[0]
+    dy = start[1] - end[1]
+    iterations = max(abs(dx), abs(dy))
+    
+    for i in range(iterations):
+        progress = 1.0 * i / iterations
+        aprogress = 1 - progress
+        x = int(aprogress * start[0] + progress * end[0])
+        y = int(aprogress * start[1] + progress * end[1])
+        pygame.draw.circle(screen, color, (x, y), width)
 
 main()
