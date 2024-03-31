@@ -32,7 +32,7 @@ game_score_rect = game_score_text.get_rect()
 game_score_rect.center = (210, 20)
 
 #Catching sound
-collision_sound = pygame.mixer.Sound('audio/catch.mp3')
+collision_sound = pygame.mixer.Sound('catch.mp3')
 
 def detect_collision(dx, dy, ball, rect):
     if dx > 0:
@@ -56,9 +56,17 @@ def detect_collision(dx, dy, ball, rect):
 #block settings
 block_list = [pygame.Rect(10 + 120 * i, 50 + 70 * j,
         100, 50) for i in range(10) for j in range (4)]
+unbreakable = [pygame.Rect(10 + 120 * i, 50 + 70 * 4, 100, 50) for i in range(4, 8)]
+block_list.extend(unbreakable)
+
 color_list = [(random.randrange(0, 255), 
     random.randrange(0, 255),  random.randrange(0, 255))
-              for i in range(10) for j in range(4)] 
+              for i in range(len(block_list))] 
+
+for i in range(len(block_list)-len(unbreakable), len(block_list)):
+    color_list[i] = (255, 255, 255)
+
+
 print(block_list)
 #Game over Screen
 losefont = pygame.font.SysFont('comicsansms', 40)
@@ -106,11 +114,14 @@ while not done:
     hitIndex = ball.collidelist(block_list)
 
     if hitIndex != -1:
-        hitRect = block_list.pop(hitIndex)
-        hitColor = color_list.pop(hitIndex)
-        dx, dy = detect_collision(dx, dy, ball, hitRect)
-        game_score += 1
-        collision_sound.play()
+        if block_list[hitIndex] in unbreakable:
+            dx, dy = detect_collision(dx, dy, ball, block_list[hitIndex])
+        else:
+            hitRect = block_list.pop(hitIndex)
+            hitColor = color_list.pop(hitIndex)
+            dx, dy = detect_collision(dx, dy, ball, hitRect)
+            game_score += 1
+            collision_sound.play()
         
     #Game score
     game_score_text = game_score_fonts.render(f'Your game score is: {game_score}', True, (255, 255, 255))
@@ -134,3 +145,10 @@ while not done:
 
     pygame.display.flip()
     clock.tick(FPS)
+
+
+# 1) Instead of developing Snake upgrade Arkanoid;
+# 2) Create unbreakable bricks;
+# 3) Increase the speed of a ball with time;
+# 4) Shrink the paddle with time;
+# 5) Create bonus bricks, that give some perks when you destroy them.
