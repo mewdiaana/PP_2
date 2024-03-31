@@ -32,7 +32,7 @@ game_score_rect = game_score_text.get_rect()
 game_score_rect.center = (210, 20)
 
 #Catching sound
-collision_sound = pygame.mixer.Sound('catch.mp3')
+collision_sound = pygame.mixer.Sound('audio/catch.mp3')
 
 def detect_collision(dx, dy, ball, rect):
     if dx > 0:
@@ -60,14 +60,6 @@ color_list = [(random.randrange(0, 255),
     random.randrange(0, 255),  random.randrange(0, 255))
               for i in range(10) for j in range(4)] 
 print(block_list)
-
-# bonus blocks
-bonus_block_list = [pygame.Rect(random.randrange(0, W - 100), random.randrange(100, H // 2), 100, 50) for _ in range(5)]
-bonus_color_list = [(0, 255, 0) for _ in range(5)]
-
-tospeed = 0.02
-frompaddle = 0.995
-
 #Game over Screen
 losefont = pygame.font.SysFont('comicsansms', 40)
 losetext = losefont.render('Game Over', True, (255, 255, 255))
@@ -95,13 +87,11 @@ while not done:
     pygame.draw.rect(screen, pygame.Color(255, 255, 255), paddle)
     pygame.draw.circle(screen, pygame.Color(255, 0, 0), ball.center, ballRadius)
     # print(next(enumerate (block_list)))
-    for color, block in enumerate(bonus_block_list):
-        pygame.draw.rect(screen, bonus_color_list[color], block)
 
     #Ball movement
     ball.x += ballSpeed * dx
     ball.y += ballSpeed * dy
-    
+
     #Collision left 
     if ball.centerx < ballRadius or ball.centerx > W - ballRadius:
         dx = -dx
@@ -121,23 +111,7 @@ while not done:
         dx, dy = detect_collision(dx, dy, ball, hitRect)
         game_score += 1
         collision_sound.play()
-        ballSpeed += tospeed
-
-        paddleW *= frompaddle
-        paddle.width = int(paddleW)
-
-    hitBonusIndex = ball.collidelist(bonus_block_list)
-
-    if hitBonusIndex != -1:
-        bonus_block_list.pop(hitBonusIndex)
-        bonus_color_list.pop(hitBonusIndex)
-        game_score += 3  # Increase ball speed when hitting a bonus block
-        paddleW += 4
-        ballSpeed += tospeed
-
-        paddleW *= frompaddle
-        paddle.width = int(paddleW)
-
+        
     #Game score
     game_score_text = game_score_fonts.render(f'Your game score is: {game_score}', True, (255, 255, 255))
     screen.blit(game_score_text, game_score_rect)
@@ -156,7 +130,6 @@ while not done:
         paddle.left -= paddleSpeed
     if key[pygame.K_RIGHT] and paddle.right < W:
         paddle.right += paddleSpeed
-
 
 
     pygame.display.flip()
