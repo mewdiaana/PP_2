@@ -19,6 +19,7 @@ SCORE = 0
 font = pygame.font.SysFont("Verdana", 60)
 font_small = pygame.font.SysFont("Verdana", 20)
 game_over = font.render("Game Over", True, "black")
+sco = font_small.render("Your score was", True, "black")
 
 # setting screen
 background = pygame.image.load("AnimatedStreet.png")
@@ -60,14 +61,17 @@ class Player(pygame.sprite.Sprite):
                   self.rect.move_ip(5, 0)
 
 class Coin(pygame.sprite.Sprite):
-      def __init__(self):
+    def __init__(self):
         super().__init__() 
         self.image = pygame.image.load("coin1.png")
         self.rect = self.image.get_rect()
         self.rect.center = (random.randint(40,W-40), 530)
 
-      def move(self):
+    def move(self):
         global SCORE
+
+    def change(self):
+        self.rect.center = (random.randint(40,W-40), 530)
         
                   
       
@@ -116,7 +120,7 @@ while True:
           pygame.display.update()
           for entity in all_sprites: 
                 entity.kill() 
-          time.sleep(2)
+          time.sleep(4)
           pygame.quit() # end of the game
           exit() 
 
@@ -124,10 +128,8 @@ while True:
     if pygame.sprite.spritecollideany(P1, coins):
         pygame.mixer.Sound('catch.mp3').play()
 
-        SCORE += 1 
-        for coin in pygame.sprite.spritecollide(P1, coins, True):
-            coin.kill()
-                        
-        
-    pygame.display.flip()()
+        SCORE += 1
+        C1.change()
+           
+    pygame.display.flip()
     FramePerSec.tick(FPS)
