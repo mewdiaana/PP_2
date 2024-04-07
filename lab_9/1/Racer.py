@@ -14,6 +14,7 @@ W = 400
 H = 600
 Speed = 5
 SCORE = 0
+n=5
 
 # fonts
 font = pygame.font.SysFont("Verdana", 60)
@@ -124,14 +125,21 @@ while True:
         exit() 
 
     # colliding with coins
+    i = 0
     if pygame.sprite.spritecollideany(P1, coins):
         pygame.mixer.Sound('catch.mp3').play()
-        SCORE += current_coin.score 
+        SCORE += current_coin.score # add balls
         current_coin.kill()  # Remove the current coin
         current_coin = random.choice(coin_instances)  # Choose a new coin
         current_coin.change()
         coins.add(current_coin)
         all_sprites.add(current_coin)
+        i+=1
+
+    if i>=n: #increasing the speed
+        Speed += 1
+        n += 5
+
            
     pygame.display.flip()
     FramePerSec.tick(FPS)
