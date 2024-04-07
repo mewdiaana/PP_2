@@ -1,5 +1,5 @@
 import pygame 
-import random
+import random, time
 pygame.init()
 
 W, H = 1200, 800
@@ -96,11 +96,11 @@ def main_menu():
         
         # Display main menu text and options
         menu_font = pygame.font.SysFont('comicsansms', 40)
-        title_text = menu_font.render('Main Menu', True, (255, 255, 255))
-        start_text = menu_font.render('Press SPACE to start', True, (255, 255, 255))
+        menu = menu_font.render('Menu', True, (255, 255, 255))
+        start = menu_font.render('Press s to start', True, (255, 255, 255))
         
-        screen.blit(title_text, (W // 2 - title_text.get_width() // 2, 200))
-        screen.blit(start_text, (W // 2 - start_text.get_width() // 2, 300))
+        screen.blit(menu, (600 - menu.get_width() // 2, 200))
+        screen.blit(start, (600 - start.get_width() // 2, 300))
         
         pygame.display.flip()
         
@@ -109,7 +109,7 @@ def main_menu():
                 pygame.quit()
                 quit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_s:
                     return
 
 def pause_menu():
@@ -119,13 +119,13 @@ def pause_menu():
         
         # Display pause menu text and options
         menu_font = pygame.font.SysFont('comicsansms', 40)
-        pause_text = menu_font.render('Paused', True, (255, 255, 255))
-        resume_text = menu_font.render('Press R to resume', True, (255, 255, 255))
-        main_menu_text = menu_font.render('Press M for Main Menu', True, (255, 255, 255))
+        pause = menu_font.render('Pause', True, (255, 255, 255))
+        unpause = menu_font.render('Press U to unpause', True, (255, 255, 255))
+        main_menu= menu_font.render('Press M for Menu', True, (255, 255, 255))
         
-        screen.blit(pause_text, (W // 2 - pause_text.get_width() // 2, 200))
-        screen.blit(resume_text, (W // 2 - resume_text.get_width() // 2, 300))
-        screen.blit(main_menu_text, (W // 2 - main_menu_text.get_width() // 2, 400))
+        screen.blit(pause, (600 - pause.get_width() // 2, 200))
+        screen.blit(unpause, (600 - unpause.get_width() // 2, 300))
+        screen.blit(main_menu, (600 - main_menu.get_width() // 2, 400))
         
         pygame.display.flip()
         
@@ -134,7 +134,7 @@ def pause_menu():
                 pygame.quit()
                 quit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:
+                if event.key == pygame.K_u:
                     paused = False
                 elif event.key == pygame.K_m:
                     return "main_menu"
@@ -215,6 +215,10 @@ while not done:
     if ball.bottom > H:
         screen.fill((0, 0, 0))
         screen.blit(losetext, losetextRect)
+        pygame.display.update()
+        time.sleep(3)
+        pygame.quit()  # End of the game
+        exit() 
     elif not len(block_list):
         screen.fill((255,255, 255))
         screen.blit(wintext, wintextRect)
