@@ -30,13 +30,13 @@ pygame.display.set_caption("Game")
 
 
 class Enemy(pygame.sprite.Sprite):
-      def __init__(self):
+    def __init__(self):
         super().__init__() 
         self.image = pygame.image.load("Enemy.png")
         self.rect = self.image.get_rect()
         self.rect.center = (random.randint(40,W-40), 0)
 
-      def move(self):
+    def update(self):
         self.rect.move_ip(0,Speed)
         if (self.rect.bottom > 600):
             self.rect.top = 0
@@ -50,106 +50,90 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (160, 520)
        
-    def move(self):
+    def update(self):
         pressed_keys = pygame.key.get_pressed()
         
         if self.rect.left > 0:
-              if pressed_keys[K_LEFT]:
-                  self.rect.move_ip(-5, 0)
+            if pressed_keys[K_LEFT]:
+                self.rect.move_ip(-5, 0)
         if self.rect.right < W:        
-              if pressed_keys[K_RIGHT]:
-                  self.rect.move_ip(5, 0)
+            if pressed_keys[K_RIGHT]:
+                self.rect.move_ip(5, 0)
+
 
 class Coin(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__() 
-        self.image = pygame.image.load("coin1.png")
+    def __init__(self, image_path, score):
+        super().__init__()
+        self.image = pygame.image.load(image_path)
         self.rect = self.image.get_rect()
-        self.rect.center = (random.randint(40,W-40), 530)
+        self.rect.center = (random.randint(40, W-40), 530)
+        self.score = score
 
     def change(self):
-        self.rect.center = (random.randint(40,W-40), 530)
+        self.rect.center = (random.randint(40, W-40), 530)
 
-class Coin2(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__() 
-        self.image = pygame.image.load("coin2.png")
-        self.rect = self.image.get_rect()
-        self.rect.center = (random.randint(40,W-40), 530)
 
-    def change(self):
-        self.rect.center = (random.randint(40,W-40), 530)
-
-class Coin3(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__() 
-        self.image = pygame.image.load("gem.png")
-        self.rect = self.image.get_rect()
-        self.rect.center = (random.randint(40,W-40), 530)
-
-    def change(self):
-        self.rect.center = (random.randint(40,W-40), 530)     
-                  
-      
 P1 = Player()
 E1 = Enemy()
-C1 = Coin()
-C2 = Coin2()
-C3 = Coin3()
+C1 = Coin("coin1.png", 0.5)
+C2 = Coin("coin2.png", 1)
+C3 = Coin("gem.png", 1.5)
+
+coin_instances = [C1, C2, C3]
+current_coin = random.choice(coin_instances)
 
 # making groups of sprites
 enemies = pygame.sprite.Group()
 enemies.add(E1)
 coins = pygame.sprite.Group()
-coins.add(C1)
-coins.add(C2)
-coins.add(C3)
+coins.add(current_coin)
 all_sprites = pygame.sprite.Group()
 all_sprites.add(P1)
 all_sprites.add(E1)
+all_sprites.add(current_coin)
 
- 
 INC_SPEED = pygame.USEREVENT + 1
 pygame.time.set_timer(INC_SPEED, 1000)
 
 while True:
-       
     for event in pygame.event.get():
         if event.type == INC_SPEED:
-              Speed += 0.5      
+            Speed += 0.5      
         if event.type == pygame.QUIT:
             exit()
 
-    
     scr.blit(background, (0,0))
     scores = font_small.render(str(SCORE), True, "black")
     scr.blit(scores, (10,10))
 
     for entity in all_sprites:
-        entity.move()
+        entity.update()
         scr.blit(entity.image, entity.rect)   
-        
+
     # colliding with enemies
     if pygame.sprite.spritecollideany(P1, enemies):
-          pygame.mixer.Sound('crash.wav').play()
-          time.sleep(1)
-                   
-          scr.fill("red")
-          scr.blit(game_over, (30,250))
-          
-          pygame.display.update()
-          for entity in all_sprites: 
-                entity.kill() 
-          time.sleep(4)
-          pygame.quit() # end of the game
-          exit() 
+        pygame.mixer.Sound('crash.wav').play()
+        time.sleep(1)
+        scr.fill("red")
+        scr.blit(game_over, (30,250))
+        pygame.display.update()
+        for entity in all_sprites: 
+            entity.kill() 
+        time.sleep(3)
+        pygame.quit()  # End of the game
+        exit() 
 
     # colliding with coins
     if pygame.sprite.spritecollideany(P1, coins):
         pygame.mixer.Sound('catch.mp3').play()
-
-        SCORE += 1
-        C1.change()
+        SCORE += current_coin.score 
+        current_coin.kill()  # Remove the current coin
+        current_coin = random.choice(coin_instances)  # Choose a new coin
+        current_coin.change()
+        coins.add(current_coin)
+        all_sprites.add(current_coin)
            
     pygame.display.flip()
     FramePerSec.tick(FPS)
+
+
