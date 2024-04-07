@@ -1,11 +1,30 @@
 import pygame 
 import random
+import button
+import sys
 pygame.init()
 
 W, H = 1200, 800
 FPS = 60
 
 screen = pygame.display.set_mode((W, H), pygame.RESIZABLE)
+mbg = pygame.image.load("menu.jpg")
+
+game_paused = False
+menu_state = "main"
+
+start_img = pygame.image.load("start.jpg").convert_alpha()
+set_img = pygame.image.load("Settings.jpg").convert_alpha()
+quit_img = pygame.image.load("Quit.jpg").convert_alpha()
+
+start_but = button.Button(500, 200, start_img, 1)
+set_but = button.Button(500, 400, set_img, 1)
+quit_but = button.Button(500, 600, quit_img, 1)
+
+def draw_text(text, font, text_col, x, y):
+  img = font.render(text, True, text_col)
+  screen.blit(img, (x, y))
+
 clock = pygame.time.Clock()
 done = False
 bg = (0, 0, 0)
@@ -33,6 +52,14 @@ game_score_rect.center = (210, 20)
 
 #Catching sound
 collision_sound = pygame.mixer.Sound('catch.mp3')
+
+SHRINK_RATE = 0.02  # Rate at which paddle shrinks per frame
+current_paddle_width = paddleW
+bonus_text = "bonus"
+
+# Bonus brick settings
+bonus = pygame.Rect(random.randrange(0, W - 100), 200, 100, 50)
+bonus_color = (0, 255, 0)
 
 def detect_collision(dx, dy, ball, rect):
     if dx > 0:
@@ -80,13 +107,58 @@ wintext = losefont.render('You win yay', True, (0, 0, 0))
 wintextRect = wintext.get_rect()
 wintextRect.center = (W // 2, H // 2)
 
+class Button():
+	def __init__(self, x, y, image, scale):
+		width = image.get_width()
+		height = image.get_height()
+		self.image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
+		self.rect = self.image.get_rect()
+		self.rect.topleft = (x, y)
+		self.clicked = False
+
+	def draw(self, surface):
+		action = False
+		#get mouse position
+		pos = pygame.mouse.get_pos()
+
+		#check mouseover and clicked conditions
+		if self.rect.collidepoint(pos):
+			if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
+				self.clicked = True
+				action = True
+
+		if pygame.mouse.get_pressed()[0] == 0:
+			self.clicked = False
+
+		#draw button on screen
+		surface.blit(self.image, (self.rect.x, self.rect.y))
+
+		return action
+
 
 while not done:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            done = True
+    if game_paused == True:
+        if menu_state == "main":
+        #draw pause screen buttons
+            if start_but.draw(screen):
+                game_paused = False
+            if set_but.draw(screen):
+                menu_state = "options"
+            if quit_but.draw(screen):
+                exit()
 
-    screen.fill(bg)
+
+  #event handler
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                game_paused = True
+        if event.type == pygame.QUIT:
+            exit()
+        screen.fill(mbg)
+
+    current_paddle_width -= SHRINK_RATE
+    paddle.width = int(max(current_paddle_width, 50))
     
     # print(next(enumerate(block_list)))
     
@@ -94,7 +166,21 @@ while not done:
      for color, block in enumerate (block_list)] #drawing blocks
     pygame.draw.rect(screen, pygame.Color(255, 255, 255), paddle)
     pygame.draw.circle(screen, pygame.Color(255, 0, 0), ball.center, ballRadius)
-    # print(next(enumerate (block_list)))
+    
+     # Check collision with bonus brick
+    if ball.colliderect(bonus):
+        dx, dy = detect_collision(dx, dy, ball, bonus)
+        game_score += 5
+        ballSpeed += 1  # Increase ball speed
+        bonus = pygame.Rect(random.randrange(0, W - 100), 200, 100, 50)
+        bonus_color = (0, 255, 0)
+        collision_sound.play()
+
+    # Draw bonus brick
+    pygame.draw.rect(screen, bonus_color, bonus)
+    font_bonus = pygame.font.SysFont('comicsansms', 20)
+    text_bonus = font_bonus.render(bonus_text, True, (255, 255, 255))
+    screen.blit(text_bonus, (bonus.x + 5, bonus.y + 10))
 
     #Ball movement
     ball.x += ballSpeed * dx
