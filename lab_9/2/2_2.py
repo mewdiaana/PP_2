@@ -113,44 +113,29 @@ def draw_text(text, font, text_col, x, y):
 
 run = True
 
-while run:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                game_paused = True
-
-
-    if game_paused == True:
-    #check menu state
-        if menu_state == "main":
-        #draw pause screen buttons
-            if resume_button.draw(screen):
-                game_paused = False
-            if options_button.draw(screen):
-                menu_state = "options"
-            if quit_button.draw(screen):
-                run = False
-        if menu_state == "options":
-            if audio_button.draw(screen):
-                print("Audio Settings")
-            if back_button.draw(screen):
-                menu_state = "main"
-    
-            
-    screen.fill(bg)
-
-    current_paddle_width -= SHRINK_RATE
-    paddle.width = int(max(current_paddle_width, 50))
-    
-    # print(next(enumerate(block_list)))
-    
+def draw():
     [pygame.draw.rect(screen, color_list[color], block)
      for color, block in enumerate (block_list)] #drawing blocks
     pygame.draw.rect(screen, pygame.Color(255, 255, 255), paddle)
     pygame.draw.circle(screen, pygame.Color(255, 0, 0), ball.center, ballRadius)
-    # print(next(enumerate (block_list)))
+    
+    pygame.draw.rect(screen, bonus_color, bonus)
+    
+    #Game score
+    game_score_text = game_score_fonts.render(f'Your game score is: {game_score}', True, (255, 255, 255))
+    screen.blit(game_score_text, game_score_rect)
+    
+    # Draw bonus brick
+    font_bonus = pygame.font.SysFont('comicsansms', 20)
+    text_bonus = font_bonus.render(bonus_text, True, (255, 255, 255))
+    screen.blit(text_bonus, (bonus.x + 5, bonus.y + 10))
+
+def update():
+    global dx, dy, game_score, current_paddle_width, bonus, bonus_color, bonus_text, ballSpeed, block_list, color_list, unbreakable
+
+
+    current_paddle_width -= SHRINK_RATE
+    paddle.width = int(max(current_paddle_width, 50))
 
     if ball.colliderect(bonus):
         dx, dy = detect_collision(dx, dy, ball, bonus)
@@ -159,12 +144,6 @@ while run:
         bonus = pygame.Rect(random.randrange(0, W - 100), 200, 100, 50)
         bonus_color = (0, 255, 0)
         collision_sound.play()
-
-    # Draw bonus brick
-    pygame.draw.rect(screen, bonus_color, bonus)
-    font_bonus = pygame.font.SysFont('comicsansms', 20)
-    text_bonus = font_bonus.render(bonus_text, True, (255, 255, 255))
-    screen.blit(text_bonus, (bonus.x + 5, bonus.y + 10))
 
     #Ball movement
     ball.x += ballSpeed * dx
@@ -192,10 +171,6 @@ while run:
             dx, dy = detect_collision(dx, dy, ball, hitRect)
             game_score += 1
             collision_sound.play()
-        
-    #Game score
-    game_score_text = game_score_fonts.render(f'Your game score is: {game_score}', True, (255, 255, 255))
-    screen.blit(game_score_text, game_score_rect)
     
     #Win/lose screens
     if ball.bottom > H:
@@ -215,7 +190,45 @@ while run:
         paddle.left -= paddleSpeed
     if key[pygame.K_RIGHT] and paddle.right < W:
         paddle.right += paddleSpeed
+    
 
+
+while run:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                game_paused = not game_paused
+                print("Game Paused" if game_paused else "Game Resumed")
+
+    screen.fill(bg)
+    
+    draw()
+    if not game_paused:
+        update()
+        
+    if game_paused:
+        screen.fill(bg)
+        pygame.display.flip()
+    #check menu state
+        if menu_state == "main":
+        #draw pause screen buttons
+            if resume_button.draw(screen):
+                game_paused = False
+                
+            if options_button.draw(screen):
+                menu_state = "options"
+                
+            if quit_button.draw(screen):
+                run = False
+                
+        if menu_state == "options":
+            if audio_button.draw(screen):
+                print("audio settings")
+                
+            if back_button.draw(screen):
+                menu_state = "main"
 
     pygame.display.flip()
     clock.tick(FPS)
