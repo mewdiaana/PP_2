@@ -1,5 +1,17 @@
-Game started: 2024-04-13 16:30:38 
+Game started: 2024-04-15 16:12:56 
 
-Game finished: 2024-04-13 16:30:44 
+Time: 2024-04-15 16:12:58 
+Score: 0
+Blocks left: 40
+
+Time: 2024-04-15 16:13:02 
+Score: 0
+Blocks left: 40
+
+Time: 2024-04-15 16:13:06 
+Score: 1
+Blocks left: 39
+
+Game finished: 2024-04-15 16:13:11 
 Game Score: 1
 
